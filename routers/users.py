@@ -9,18 +9,19 @@ from database import engine, SessionLocal, get_db
 import tables
 import schema
 import psycopg2
+import oauth2
 from psycopg2.extras import RealDictCursor
 import time
+from utilities import hash_password
 from sqlalchemy.orm import Session
 
 router_user = APIRouter(prefix="/users", tags=["users"])
 
 passlib = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-@router_user.post("/",status_code=status.HTTP_201_CREATED,response_model=schema.userout)
+@router_user.post("/create",status_code=status.HTTP_201_CREATED,response_model=schema.userout)
 async def createuser(post : schema.userout, db: Session = Depends(get_db)):
-    hashed_password = passlib.hash(post.password)
-    post.password = hashed_password
+    post.password = hash_password(post.password)
     user = tables.users(
         email = post.email,
         password = post.password
@@ -31,7 +32,8 @@ async def createuser(post : schema.userout, db: Session = Depends(get_db)):
     return user
 
 @router_user.get("/{id}",response_model=schema.userout,status_code=status.HTTP_200_OK)
-async def get_user( id : int ,db: Session = Depends(get_db)):
+async def get_user( id : int ,db: Session = Depends(get_db),user_id : int = Depends(oauth2.get_current_user)):
+    print(user_id)
     users = db.query(tables.users).filter(tables.users.id == id).first()
     if users:
         return users
