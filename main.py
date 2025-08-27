@@ -21,11 +21,11 @@ date_str = today.strftime("%d-%m-%y")
 time = today.strftime("%H:%M:%S")
 
 try:
-    connection = psycopg2.connect(user="postgres",
-                                  password="password",
+    connection = psycopg2.connect(user="postgres", #<-- insert the username here
+                                  password="", #<-- insert the password here
                                   host="localhost",
                                   port="5432",
-                                  database="fastapi",
+                                  database="fastapi", #<-- insert the databasename here
                                 cursor_factory=RealDictCursor)
     cursor = connection.cursor()
     print("database connection is succesfull")
